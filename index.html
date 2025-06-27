@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>אוטובוסים שלי</title>
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Varela Round', sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 2em;
+      margin: 0;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 1em;
+    }
+
+    button {
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      padding: 0.7em 1.4em;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    #output {
+      margin-top: 2em;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bus-card {
+      background-color: white;
+      padding: 1em 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 300px;
+      width: 100%;
+      text-align: right;
+      direction: rtl;
+    }
+
+    .loading, .error {
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>האוטובוסים שלי</h2>
+  <button onclick="getBusData()">בדוק עכשיו</button>
+
+  <div id="output"></div>
+
+  <script>
+    async function getBusData() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p class="loading">טוען נתונים...</p>';
+
+      try {
+        const res = await fetch("__API_GATEWAY_URL__");
+        const data = await res.json();
+
+        output.innerHTML = "";
+
+        if (data.length === 0) {
+          output.innerHTML = '<p class="loading">לא נמצאו קווים זמינים.</p>';
+          return;
+        }
+
+        data.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'bus-card';
+          card.innerHTML = `
+            <strong>קו ${item.split(" ")[0]}</strong><br>
+            ${item.slice(item.indexOf(" ") + 1)}
+          `;
+          output.appendChild(card);
+        });
+      } catch (err) {
+        output.innerHTML = `<p class="error">שגיאה: ${err.message}</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>

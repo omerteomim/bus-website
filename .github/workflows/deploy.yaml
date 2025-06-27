@@ -1,0 +1,91 @@
+name: Deploy Lambda to AWS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies and zip Lambda function
+      run: |
+        mkdir -p package
+        cp lambda_function.py package/
+        cd package
+        zip -r ../lambda_function.zip .
+        cd ..
+    
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.0.0
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Terraform Init
+      run: terraform init
+      
+    - name: Terraform Validate
+      run: terraform validate
+    
+    - name: Terraform Plan
+      run: |
+        terraform plan \
+          -var="aws_region=${{ secrets.AWS_REGION }}"
+          
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main'
+      run: |
+        terraform apply -auto-approve \
+          -var="aws_region=${{ secrets.AWS_REGION }}"
+    
+    - name: Apply Lambda function to html
+      run: |
+       # Get the URL from Terraform output
+       URL=$(terraform output -raw api_gateway_url 2>&1 | \
+            grep -oP 'https?://[^\s::]*' | \
+            head -n 1 | \
+            tr -d '\n')
+
+       echo "Lambda URL is: $URL"
+       # Replace the placeholder in index.html
+       sed -i "s|__API_GATEWAY_URL__|$URL|g" index.html
+
+    - name: Show modified fetch line
+      run: grep "fetch(" index.html || echo "fetch line not found"
+
+    - name: Create pages folder
+      run: |
+        mkdir -p gh-pages
+        cp index.html gh-pages/
+
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: gh-pages
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+    - name: Print GitHub Pages URL
+      run: |
+        echo "🚀 GitHub Pages deployed successfully!"
+        echo "📄 Your site is available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+
