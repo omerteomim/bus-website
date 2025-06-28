@@ -78,6 +78,7 @@ jobs:
       run: |
         mkdir -p gh-pages
         cp index.html gh-pages/
+        cp school-bus.png gh-pages/
 
     - name: Upload GitHub Pages artifact
       uses: actions/upload-pages-artifact@v3
