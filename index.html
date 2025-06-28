@@ -1,79 +1,346 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <title>אוטובוסים שלי</title>
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Varela Round', sans-serif;
-      background-color: #f5f5f5;
-      text-align: center;
-      padding: 2em;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    h2 {
-      color: #333;
-      margin-bottom: 1em;
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f8f9fa;
+      color: #3c4043;
+      line-height: 1.5;
+      min-height: 100vh;
     }
 
-    button {
-      background-color: #0077cc;
+    .header {
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      padding: 16px 24px;
+      border-bottom: 1px solid #e8eaed;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #202124;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bus-icon {
+      width: 24px;
+      height: 24px;
+      background: #1a73e8;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+    }
+
+    .main-content {
+      padding: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .search-section {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(32,33,36,0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid #dadce0;
+    }
+
+    .search-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 16px;
+    }
+
+    .search-button {
+      background: #1a73e8;
       color: white;
       border: none;
-      padding: 0.7em 1.4em;
-      font-size: 1rem;
-      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    button:hover {
-      background-color: #005fa3;
+    .search-button:hover {
+      background: #1557b0;
+      box-shadow: 0 1px 3px rgba(26,115,232,0.4);
+    }
+
+    .search-button:active {
+      background: #1c5fba;
+    }
+
+    .search-button:disabled {
+      background: #f1f3f4;
+      color: #5f6368;
+      cursor: not-allowed;
     }
 
     #output {
-      margin-top: 2em;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      align-items: center;
+      gap: 16px;
+    }
+
+    .results-header {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 8px;
+      padding: 0 4px;
     }
 
     .bus-card {
-      background-color: white;
-      padding: 1em 1.5em;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 300px;
-      width: 100%;
-      text-align: right;
-      direction: rtl;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(32,33,36,0.08);
+      border: 1px solid #dadce0;
+      transition: all 0.2s ease;
+      overflow: hidden;
     }
 
-    .loading, .error {
-      font-size: 1.1em;
-      color: #555;
+    .bus-card:hover {
+      box-shadow: 0 2px 8px rgba(32,33,36,0.12);
+      border-color: #dadce0;
+    }
+
+    .bus-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid #f1f3f4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .bus-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .line-number {
+      background: #1a73e8;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .line-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+    }
+
+    .arrival-time {
+      font-size: 14px;
+      color: #1a73e8;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bus-details {
+      padding: 12px 20px 16px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #5f6368;
+    }
+
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-icon {
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      color: #5f6368;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      color: #5f6368;
+      font-size: 14px;
+      gap: 12px;
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f1f3f4;
+      border-top: 2px solid #1a73e8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .error {
-      color: red;
+      background: #fce8e6;
+      border: 1px solid #f9ab00;
+      border-radius: 8px;
+      padding: 16px 20px;
+      color: #d93025;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34a853;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    .status-indicator.delayed {
+      background: #f9ab00;
+    }
+
+    .status-indicator.late {
+      background: #ea4335;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 16px;
+      }
+      
+      .search-section {
+        padding: 20px 16px;
+        margin-bottom: 16px;
+      }
+      
+      .header {
+        padding: 12px 16px;
+      }
+      
+      .bus-header {
+        padding: 12px 16px 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .bus-details {
+        padding: 8px 16px 12px;
+      }
+      
+      .container {
+        padding: 0 8px;
+      }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #5f6368;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      background: #f1f3f4;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .empty-state-text {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #202124;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+      color: #5f6368;
     }
   </style>
 </head>
 <body>
+  <header class="header">
+    <div class="container">
+      <h1>
+        <div class="bus-icon">🚌</div>
+        אוטובוסים שלי
+      </h1>
+    </div>
+  </header>
 
-  <h2>האוטובוסים שלי</h2>
-  <button onclick="getBusData()">בדוק עכשיו</button>
+  <main class="main-content">
+    <div class="search-section">
+      <div class="search-title">בדיקת זמני הגעה</div>
+      <button class="search-button" onclick="getBusData()" id="searchBtn">
+        <span>בדוק עכשיו</span>
+      </button>
+    </div>
 
-  <div id="output"></div>
+    <div id="output"></div>
+  </main>
 
   <script>
     async function getBusData() {
       const output = document.getElementById('output');
-      output.innerHTML = '<p class="loading">טוען נתונים...</p>';
-
+      const searchBtn = document.getElementById('searchBtn');
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = '<div class="loading-spinner"></div><span>טוען...</span>';
       try {
         const res = await fetch("__API_GATEWAY_URL__");
         const data = await res.json();
@@ -81,7 +348,7 @@
         output.innerHTML = "";
 
         if (data.length === 0) {
-          output.innerHTML = '<p class="loading">לא נמצאו קווים זמינים.</p>';
+          searchBtn.innerHTML = '<p >לא נמצאו קווים זמינים.</p>';
           return;
         }
 
